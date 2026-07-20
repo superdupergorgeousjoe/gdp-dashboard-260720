@@ -1,147 +1,95 @@
 import streamlit as st
-import pandas as pd
-import math
-from pathlib import Path
 
-# Set the title and favicon that appear in the Browser's tab bar.
 st.set_page_config(
-    page_title='GDP dashboard',
-    page_icon=':earth_americas:', # This is an emoji shortcode. Could be a URL too.
+    page_title='심지효 소개',
+    page_icon='🌿',
+    layout='wide',
 )
 
-# -----------------------------------------------------------------------------
-# Declare some useful functions.
-
-@st.cache_data
-def get_gdp_data():
-    """Grab GDP data from a CSV file.
-
-    This uses caching to avoid having to read the file every time. If we were
-    reading from an HTTP endpoint instead of a file, it's a good idea to set
-    a maximum age to the cache with the TTL argument: @st.cache_data(ttl='1d')
+st.markdown(
     """
+    <style>
+    .hero-box {
+        background: linear-gradient(135deg, #f5f3ff 0%, #e8f2ff 100%);
+        padding: 1.8rem 2rem;
+        border-radius: 20px;
+        border: 1px solid #dfe7ff;
+        margin-bottom: 1rem;
+    }
+    .info-card {
+        background: white;
+        padding: 1rem 1.2rem;
+        border-radius: 16px;
+        border: 1px solid #eef2ff;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+        height: 100%;
+    }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #3b4a67;
+        margin-bottom: 0.3rem;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
-    # Instead of a CSV on disk, you could read from an HTTP endpoint here too.
-    DATA_FILENAME = Path(__file__).parent/'data/gdp_data.csv'
-    raw_gdp_df = pd.read_csv(DATA_FILENAME)
+st.markdown(
+    """
+    <div class="hero-box">
+        <h1 style="margin-bottom:0.3rem;">안녕하세요, 저는 심지효입니다 👋</h1>
+        <p style="font-size:1.05rem; color:#4b5563; margin:0;">
+            역사 교사로서 학생들과 함께 생각하고 배우는 교육의 가치를 나누고 있습니다.
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-    MIN_YEAR = 1960
-    MAX_YEAR = 2022
+col1, col2, col3 = st.columns(3)
+col1.metric('직업', '역사 교사')
+col2.metric('연락처', '010 0000 0000')
+col3.metric('관심사', '교육 · 역사')
 
-    # The data above has columns like:
-    # - Country Name
-    # - Country Code
-    # - [Stuff I don't care about]
-    # - GDP for 1960
-    # - GDP for 1961
-    import streamlit as st
-    import pandas as pd
-    import numpy as np
-    from datetime import date
-    from PIL import Image
-    import io
+st.markdown('---')
 
-    # 페이지 설정
-    st.set_page_config(
-        page_title='Streamlit 요소 예시',
-        page_icon=':sparkles:',
-        layout='wide',
+left_col, right_col = st.columns([2, 1], gap='large')
+
+with left_col:
+    st.markdown(
+        """
+        <div class="info-card">
+            <div class="section-title">소개</div>
+            <p style="line-height:1.7; color:#374151; margin:0;">
+                저는 역사 교육을 통해 사람들과 함께 생각하고 배울 수 있는 가치를 중요하게 여깁니다.
+                단순히 지식을 전달하는 것을 넘어, 학생들이 역사 속에서 의미를 찾고 성장할 수 있도록 돕는 것이 목표입니다.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
-    st.title('Streamlit 요소 예시 페이지')
-    st.subheader('하나의 단일 페이지에서 다양한 Streamlit 컴포넌트를 시연합니다')
+with right_col:
+    st.markdown(
+        """
+        <div class="info-card">
+            <div class="section-title">기본 정보</div>
+            <ul style="padding-left: 1rem; color:#374151; line-height:1.8; margin:0;">
+                <li>이름: 심지효</li>
+                <li>직업: 역사 교사</li>
+                <li>연락처: 010 0000 0000</li>
+                <li>관심사: 교육, 역사, 소통</li>
+            </ul>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    # 사이드바
-    with st.sidebar:
-        st.header('사이드바')
-        user_name = st.text_input('이름', '사용자')
-        show_map = st.checkbox('지도 표시', value=True)
-        dataset_type = st.selectbox('샘플 데이터', ['시계열', '카테고리'])
-        n = st.slider('샘플 행 수', 10, 1000, 200)
-        st.markdown('---')
-        st.write('예시 페이지')
+st.markdown('---')
 
-    # 요약 메트릭
-    col1, col2, col3 = st.columns(3)
-    col1.metric('매출', '₩ 1,234,000', '+4.5%')
-    col2.metric('활성 사용자', '3,210', '-1.2%')
-    col3.metric('평균 세션 길이', '5m 12s', '+0.8%')
+with st.expander('더 알아보기', expanded=True):
+    st.write('좋은 교육은 사람과 사람을 연결하는 힘이 있다고 믿습니다.')
+    st.write('지속적으로 배우고 성장하는 자세로, 삶과 교육 모두에서 의미 있는 연결을 만들어가고 있습니다.')
 
-    # 차트 섹션
-    st.header('차트')
-    if dataset_type == '시계열':
-        df = pd.DataFrame({
-            'date': pd.date_range('2024-01-01', periods=n, freq='D'),
-            'value': np.random.randn(n).cumsum() + 50,
-        }).set_index('date')
-        st.line_chart(df)
-    else:
-        cats = list('ABCDE')
-        df = pd.DataFrame({
-            'category': np.random.choice(cats, size=n),
-            'value': np.random.randint(1, 100, size=n),
-        })
-        st.bar_chart(df.groupby('category').sum())
-
-    # 데이터 미리보기
-    st.header('데이터 미리보기')
-    st.dataframe(df.head(10))
-    st.table(df.head(5))
-
-    # 지도 (무작위 좌표)
-    if show_map:
-        st.header('지도 (샘플 좌표)')
-        map_df = pd.DataFrame(
-            np.random.randn(100, 2) / [50, 50] + [37.55, 126.98],
-            columns=['lat', 'lon'],
-        )
-        st.map(map_df)
-
-    # 미디어
-    st.header('미디어')
-    img = Image.new('RGB', (320, 120), color=(73, 109, 137))
-    buf = io.BytesIO()
-    img.save(buf, format='PNG')
-    buf.seek(0)
-    st.image(buf, caption='생성된 예시 이미지', use_column_width=False)
-
-    # 폼
-    st.header('폼 및 입력')
-    with st.form('sample_form'):
-        age = st.number_input('나이', min_value=0, max_value=120, value=30)
-        dob = st.date_input('생년월일', value=date(1990, 1, 1))
-        fav_color = st.color_picker('좋아하는 색', '#00f900')
-        agree = st.checkbox('약관 동의')
-        submitted = st.form_submit_button('제출')
-        if submitted:
-            st.success(f'{user_name}님, 제출되었습니다.')
-            st.write({'나이': age, '생년월일': str(dob), '색상': fav_color, '동의': agree})
-
-    # 파일 업로더
-    st.header('파일 업로드 (CSV)')
-    uploaded = st.file_uploader('CSV 파일 업로드', type=['csv'])
-    if uploaded is not None:
-        uploaded_df = pd.read_csv(uploaded)
-        st.write('업로드된 데이터 미리보기')
-        st.dataframe(uploaded_df.head())
-
-    # 탭과 확장 패널
-    tab1, tab2 = st.tabs(['요약', '원본'])
-    with tab1:
-        st.write('이 탭은 요약 정보를 보여줍니다.')
-    with tab2:
-        st.code("""# 간단한 예시 코드
-    print('Hello Streamlit')""")
-
-    with st.expander('추가 정보'):
-        st.write('여기에 상세 설명이나 참고 사항을 넣을 수 있습니다.')
-
-    # 진행 표시
-    st.header('진행 표시')
-    progress = st.progress(0)
-    for i in range(100):
-        progress.progress(i + 1)
-
-    st.write('---')
-    st.write('예시 페이지가 로드되었습니다. 필요하면 구성요소를 추가하겠습니다.')
-            label=f'{country} GDP',
+st.success('학생들과 함께 성장하며, 역사와 교육의 가치를 나누는 사람입니다.')
