@@ -34,118 +34,114 @@ def get_gdp_data():
     # - [Stuff I don't care about]
     # - GDP for 1960
     # - GDP for 1961
-    # - GDP for 1962
-    # - ...
-    # - GDP for 2022
-    #
-    # ...but I want this instead:
-    # - Country Name
-    # - Country Code
-    # - Year
-    # - GDP
-    #
-    # So let's pivot all those year-columns into two: Year and GDP
-    gdp_df = raw_gdp_df.melt(
-        ['Country Code'],
-        [str(x) for x in range(MIN_YEAR, MAX_YEAR + 1)],
-        'Year',
-        'GDP',
+    import streamlit as st
+    import pandas as pd
+    import numpy as np
+    from datetime import date
+    from PIL import Image
+    import io
+
+    # 페이지 설정
+    st.set_page_config(
+        page_title='Streamlit 요소 예시',
+        page_icon=':sparkles:',
+        layout='wide',
     )
 
-    # Convert years from string to integers
-    gdp_df['Year'] = pd.to_numeric(gdp_df['Year'])
+    st.title('Streamlit 요소 예시 페이지')
+    st.subheader('하나의 단일 페이지에서 다양한 Streamlit 컴포넌트를 시연합니다')
 
-    return gdp_df
+    # 사이드바
+    with st.sidebar:
+        st.header('사이드바')
+        user_name = st.text_input('이름', '사용자')
+        show_map = st.checkbox('지도 표시', value=True)
+        dataset_type = st.selectbox('샘플 데이터', ['시계열', '카테고리'])
+        n = st.slider('샘플 행 수', 10, 1000, 200)
+        st.markdown('---')
+        st.write('예시 페이지')
 
-gdp_df = get_gdp_data()
+    # 요약 메트릭
+    col1, col2, col3 = st.columns(3)
+    col1.metric('매출', '₩ 1,234,000', '+4.5%')
+    col2.metric('활성 사용자', '3,210', '-1.2%')
+    col3.metric('평균 세션 길이', '5m 12s', '+0.8%')
 
-# -----------------------------------------------------------------------------
-# Draw the actual page
+    # 차트 섹션
+    st.header('차트')
+    if dataset_type == '시계열':
+        df = pd.DataFrame({
+            'date': pd.date_range('2024-01-01', periods=n, freq='D'),
+            'value': np.random.randn(n).cumsum() + 50,
+        }).set_index('date')
+        st.line_chart(df)
+    else:
+        cats = list('ABCDE')
+        df = pd.DataFrame({
+            'category': np.random.choice(cats, size=n),
+            'value': np.random.randint(1, 100, size=n),
+        })
+        st.bar_chart(df.groupby('category').sum())
 
-# Set the title that appears at the top of the page.
-'''
-# :earth_americas: GDP dashboard
+    # 데이터 미리보기
+    st.header('데이터 미리보기')
+    st.dataframe(df.head(10))
+    st.table(df.head(5))
 
-Browse GDP data from the [World Bank Open Data](https://data.worldbank.org/) website. As you'll
-notice, the data only goes to 2022 right now, and datapoints for certain years are often missing.
-But it's otherwise a great (and did I mention _free_?) source of data.
-'''
-
-# Add some spacing
-''
-''
-
-min_value = gdp_df['Year'].min()
-max_value = gdp_df['Year'].max()
-
-from_year, to_year = st.slider(
-    'Which years are you interested in?',
-    min_value=min_value,
-    max_value=max_value,
-    value=[min_value, max_value])
-
-countries = gdp_df['Country Code'].unique()
-
-if not len(countries):
-    st.warning("Select at least one country")
-
-selected_countries = st.multiselect(
-    'Which countries would you like to view?',
-    countries,
-    ['DEU', 'FRA', 'GBR', 'BRA', 'MEX', 'JPN'])
-
-''
-''
-''
-
-# Filter the data
-filtered_gdp_df = gdp_df[
-    (gdp_df['Country Code'].isin(selected_countries))
-    & (gdp_df['Year'] <= to_year)
-    & (from_year <= gdp_df['Year'])
-]
-
-st.header('GDP over time', divider='gray')
-
-''
-
-st.line_chart(
-    filtered_gdp_df,
-    x='Year',
-    y='GDP',
-    color='Country Code',
-)
-
-''
-''
-
-
-first_year = gdp_df[gdp_df['Year'] == from_year]
-last_year = gdp_df[gdp_df['Year'] == to_year]
-
-st.header(f'GDP in {to_year}', divider='gray')
-
-''
-
-cols = st.columns(4)
-
-for i, country in enumerate(selected_countries):
-    col = cols[i % len(cols)]
-
-    with col:
-        first_gdp = first_year[first_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-        last_gdp = last_year[last_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-
-        if math.isnan(first_gdp):
-            growth = 'n/a'
-            delta_color = 'off'
-        else:
-            growth = f'{last_gdp / first_gdp:,.2f}x'
-            delta_color = 'normal'
-
-        st.metric(
-            label=f'{country} GDP',
-            value=f'{last_gdp:,.0f}B',
-            delta=growth,
-            delta_color=delta_color
+    # 지도 (무작위 좌표)
+    if show_map:
+        st.header('지도 (샘플 좌표)')
+        map_df = pd.DataFrame(
+            np.random.randn(100, 2) / [50, 50] + [37.55, 126.98],
+            columns=['lat', 'lon'],
         )
+        st.map(map_df)
+
+    # 미디어
+    st.header('미디어')
+    img = Image.new('RGB', (320, 120), color=(73, 109, 137))
+    buf = io.BytesIO()
+    img.save(buf, format='PNG')
+    buf.seek(0)
+    st.image(buf, caption='생성된 예시 이미지', use_column_width=False)
+
+    # 폼
+    st.header('폼 및 입력')
+    with st.form('sample_form'):
+        age = st.number_input('나이', min_value=0, max_value=120, value=30)
+        dob = st.date_input('생년월일', value=date(1990, 1, 1))
+        fav_color = st.color_picker('좋아하는 색', '#00f900')
+        agree = st.checkbox('약관 동의')
+        submitted = st.form_submit_button('제출')
+        if submitted:
+            st.success(f'{user_name}님, 제출되었습니다.')
+            st.write({'나이': age, '생년월일': str(dob), '색상': fav_color, '동의': agree})
+
+    # 파일 업로더
+    st.header('파일 업로드 (CSV)')
+    uploaded = st.file_uploader('CSV 파일 업로드', type=['csv'])
+    if uploaded is not None:
+        uploaded_df = pd.read_csv(uploaded)
+        st.write('업로드된 데이터 미리보기')
+        st.dataframe(uploaded_df.head())
+
+    # 탭과 확장 패널
+    tab1, tab2 = st.tabs(['요약', '원본'])
+    with tab1:
+        st.write('이 탭은 요약 정보를 보여줍니다.')
+    with tab2:
+        st.code("""# 간단한 예시 코드
+    print('Hello Streamlit')""")
+
+    with st.expander('추가 정보'):
+        st.write('여기에 상세 설명이나 참고 사항을 넣을 수 있습니다.')
+
+    # 진행 표시
+    st.header('진행 표시')
+    progress = st.progress(0)
+    for i in range(100):
+        progress.progress(i + 1)
+
+    st.write('---')
+    st.write('예시 페이지가 로드되었습니다. 필요하면 구성요소를 추가하겠습니다.')
+            label=f'{country} GDP',
