@@ -3,7 +3,7 @@ import streamlit as st
 st.set_page_config(page_title='역사 퀴즈', page_icon='📜')
 
 st.title('📜 한국사 미니 퀴즈')
-st.write('역사 교사가 내는 3문제! 몇 개나 맞힐 수 있을까요?')
+st.write('역사 상식 3문제! 나는 상식이 있는 사람일까...?')
 
 score = 0
 
