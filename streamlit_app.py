@@ -93,3 +93,11 @@ with st.expander('더 알아보기', expanded=True):
     st.write('지속적으로 배우고 성장하는 자세로, 삶과 교육 모두에서 의미 있는 연결을 만들어가고 있습니다.')
 
 st.success('학생들과 함께 성장하며, 역사와 교육의 가치를 나누는 사람입니다.')
+
+
+st.markdown('---')
+
+st.subheader('💬 방명록')
+message = st.text_input('하고 싶은 말을 남겨 주세요!')
+if message:
+    st.success(f'메시지 감사합니다! 😊 {message}')
